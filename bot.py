@@ -11,6 +11,12 @@ from io import BytesIO
 bot = telebot.TeleBot(TOKEN)
 
 
+@bot.message_handler(commands=['start'])
+def start_command(msg:Message):
+    bot.send_message(msg.chat.id, """Привет! Я бот, который сделает тебе картинку по твоему опиманию! С помощью команды /image ты сможешь это сделать, удачи!)""")
+
+
+
 @bot.message_handler(commands=['image'])
 def gen_image(msg: Message):
     bot.send_message(msg.chat.id, "Напиши что ты хочешь сгенерировать?❤")
@@ -19,7 +25,8 @@ def gen_image(msg: Message):
 
 def gen_promt(msg:Message):
     promt = msg.text
-    bot.send_message(msg.chat.id, "Началась генерация картинки🌆")
+    x = bot.send_message(msg.chat.id, "Началась генерация картинки🌆")
+    bot.send_chat_action(msg.chat.id, 'typing')
     image = generate_image_from_text(promt, API_URL, API_KEY, SECRET_KEY)[0]
     data = base64.b64decode(image)
     image = Image.open(BytesIO(data)) 
@@ -27,8 +34,7 @@ def gen_promt(msg:Message):
     with open('photo.jpg', 'rb') as file:
         photo = file.read()
         bot.send_photo(msg.chat.id,photo=photo)
-
-
+        bot.delete_message(x.chat.id, x.id)
 
 
 
